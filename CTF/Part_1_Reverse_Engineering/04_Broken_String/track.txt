@@ -1,0 +1,6 @@
+When everything seems broken, you can still find a way.
+
+
+
+###########################
+FLAG: svt{bro0t_b3aten}

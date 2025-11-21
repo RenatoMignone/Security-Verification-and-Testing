@@ -1,0 +1,10 @@
+Welcome to crackme challenge. 
+You have to find a specific input that make print this executable "correct". 
+once you find a value, you can connect to the remote license exchanger to turn your license key into a flag. 
+Good luck!
+
+
+###########################
+FLAG:  svt{5907b879-dbd5-4682-b5a1-19de110fd607}
+
+Found Number: 5B134977135E7D13

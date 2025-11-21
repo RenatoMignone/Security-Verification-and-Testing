@@ -1,0 +1,5 @@
+Welcome to encryption challenge 2. 
+You have to find a specific input that make print this executable "correct". Good luck!
+
+###########################
+FLAG: svt{s1mpl3_3ncrypt10n_sch3m4}

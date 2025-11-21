@@ -1,0 +1,5 @@
+You have to dig in the depths of the code to find the flag
+
+
+###########################
+FLAG: svt{s3curi7y_7hr0ugh_0bfuscury7y_1s_n07_5ecuri7y}

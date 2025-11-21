@@ -1,0 +1,108 @@
+(* =========================================================================== *)
+(* Declarations                                                                *)
+(* =========================================================================== *)
+
+free c: channel.
+type password.
+type exponent.
+type G.
+type key.
+
+free pw: password [private].
+
+(* =========================================================================== *)
+(* Cryptographic Primitives (The Stable Method)                                *)
+(* =========================================================================== *)
+
+(* 1. Generator derivation *)
+fun pw_to_g(password): G.
+
+(* 2. Constructor: exp(g, x) *)
+(* This just represents the data sent over the network. It does NOT compute. *)
+fun exp(G, exponent): G.
+
+(* 3. Internal Canonical Form (The "Mix") *)
+(* This represents the final shared secret mathematically. *)
+(* It is "flat" (takes 3 arguments) so it cannot loop infinitely. *)
+fun mixed_key(G, exponent, exponent): G.
+
+(* 4. The Equation (Commutativity) *)
+(* We apply the logic ONLY to the internal form. *)
+(* mixed_key(g, x, y) is the same as mixed_key(g, y, x) *)
+equation forall g: G, x: exponent, y: exponent;
+    mixed_key(g, x, y) = mixed_key(g, y, x).
+
+(* 5. The Calculator (Destructor) *)
+(* This is the function the Client/Server actually call. *)
+(* If you input (g^x) and y, it outputs mixed_key(g, x, y) *)
+reduc forall g: G, x: exponent, y: exponent;
+    calc_dh(exp(g, x), y) = mixed_key(g, x, y).
+
+(* 6. Hashing *)
+fun h(G): key.
+
+(* =========================================================================== *)
+(* Events & Queries                                                            *)
+(* =========================================================================== *)
+
+event client_completed(key).
+event server_completed(key).
+
+(* Reachability *)
+query k: key; event(client_completed(k)).
+query k: key; event(server_completed(k)).
+
+(* Secrecy *)
+query s: key; attacker(s).
+
+(* Authentication *)
+query k: key; inj-event(client_completed(k)) ==> inj-event(server_completed(k)).
+
+(* =========================================================================== *)
+(* Processes                                                                   *)
+(* =========================================================================== *)
+
+let Client(p: password) =
+   let g = pw_to_g(p) in
+   new a: exponent;
+
+   (* 1. Send Public Value using the CONSTRUCTOR *)
+   let A = exp(g, a) in
+   out(c, A);
+
+   (* 2. Receive Public Value *)
+   in(c, B: G);
+
+   (* 3. Calculate Secret using the CALCULATOR (Destructor) *)
+   (* We cannot use 'exp(B, a)' here because B is complex. We use calc_dh. *)
+   let k = calc_dh(B, a) in
+   
+   let s = h(k) in
+   event client_completed(s).
+
+
+let Server(p: password) =
+    let g = pw_to_g(p) in
+    
+    (* 1. Receive Public Value *)
+    in(c, A: G);
+
+    new b: exponent;
+
+    (* 2. Send Public Value using the CONSTRUCTOR *)
+    let B = exp(g, b) in
+    out(c, B);
+
+    (* 3. Calculate Secret using the CALCULATOR (Destructor) *)
+    let k = calc_dh(A, b) in
+
+    let s = h(k) in
+    event server_completed(s).
+
+
+(* =========================================================================== *)
+(* Main                                                                        *)
+(* =========================================================================== *)
+
+process
+   ( !Client(pw) | !Server(pw) )

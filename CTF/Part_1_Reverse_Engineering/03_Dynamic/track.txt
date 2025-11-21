@@ -1,0 +1,6 @@
+Dive into the details of executions, where the secret lies in the names you uncover.
+
+
+
+###########################
+FLAG:  svt{fl4g_in_the_dyn4mic_depths}
